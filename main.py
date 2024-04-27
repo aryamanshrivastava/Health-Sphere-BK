@@ -130,6 +130,11 @@ def predict_liver(input_data):
     return prediction[0]
 
 # Route for processing uploaded file and predicting diabetes
+@app.route('/get_message', methods=['GET'])
+def hello():
+    return "Hello_from_server"
+
+
 @app.route('/predict', methods=['POST'])
 def predict_disease():
     data = request.get_json()
@@ -151,7 +156,7 @@ def predict_disease():
 
     if disease_value == 1:
         ocr_output = perform_ocr_on_pdf(image_data) if filename.endswith('.pdf') else perform_ocr_on_image(np.array(Image.open(image_data)))
-        output_file = 'ocr_output.csv'
+        output_file = 'ocr_output_liver.csv'
         write_ocr_output_to_csv(ocr_output, output_file)
         lab_values = extract_lab_values(output_file)
         prediction = predict_liver([*lab_values.values()])
@@ -162,7 +167,7 @@ def predict_disease():
     
     elif disease_value == 2:
         ocr_output = perform_ocr_on_pdf(image_data) if filename.endswith('.pdf') else perform_ocr_on_image(np.array(Image.open(image_data)))
-        output_file = 'ocr_output.csv'
+        output_file = 'ocr_output_diabetes.csv'
         write_ocr_output_to_csv(ocr_output, output_file)
         glucose_value = extract_glucose_value(output_file)
         prediction = predict_diabetes([0.627, 33.6, 6, 50, glucose_value])
@@ -177,4 +182,4 @@ def predict_disease():
     return jsonify({"Prediction": result})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
